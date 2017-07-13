@@ -1,0 +1,20 @@
+{
+  "type" : "object",
+  "id" : "urn:jsonschema:io:gravitee:policy:basicauth:configuration:BasicAuthenticationPolicyConfiguration",
+  "properties" : {
+    "authenticationProvider" : {
+      "title": "Authentication provider",
+      "description": "Authentication provider resource used to authenticate users",
+      "type" : "string"
+    },
+    "realm" : {
+      "title": "Realm name",
+      "description": "The realm name showed to the client in case of error.",
+      "type" : "string",
+      "default": "gravitee.io"
+    }
+  },
+  "required": [
+    "authenticationProvider"
+  ]
+}
