@@ -17,22 +17,24 @@ package io.gravitee.policy.basicauth.configuration;
 
 import io.gravitee.policy.api.PolicyConfiguration;
 
+import java.util.List;
+
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class BasicAuthenticationPolicyConfiguration implements PolicyConfiguration {
 
-    private String authenticationProvider;
+    private List<String> authenticationProviders;
 
     private String realm;
 
-    public String getAuthenticationProvider() {
-        return authenticationProvider;
+    public List<String> getAuthenticationProviders() {
+        return authenticationProviders;
     }
 
-    public void setAuthenticationProvider(String authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
+    public void setAuthenticationProviders(List<String> authenticationProviders) {
+        this.authenticationProviders = authenticationProviders;
     }
 
     public String getRealm() {

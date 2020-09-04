@@ -2,10 +2,15 @@
   "type" : "object",
   "id" : "urn:jsonschema:io:gravitee:policy:basicauth:configuration:BasicAuthenticationPolicyConfiguration",
   "properties" : {
-    "authenticationProvider" : {
-      "title": "Authentication provider",
-      "description": "Authentication provider resource used to authenticate users",
-      "type" : "string"
+    "authenticationProviders" : {
+      "type" : "array",
+      "title": "Authentication providers",
+      "description": "Authentication provider resources used to authenticate users. By providing multiple providers, the gateway will try each of them until the user is authenticated.",
+      "items" : {
+        "type" : "string",
+        "description": "Name of the authentication provider to use",
+        "title": "Identity Provider"
+      }
     },
     "realm" : {
       "title": "Realm name",
@@ -15,6 +20,7 @@
     }
   },
   "required": [
-    "authenticationProvider"
+    "authenticationProviders",
+    "realm"
   ]
 }
