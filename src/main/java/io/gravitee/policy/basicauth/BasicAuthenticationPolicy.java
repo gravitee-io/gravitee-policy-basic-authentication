@@ -32,6 +32,7 @@ import io.gravitee.resource.authprovider.api.AuthenticationProviderResource;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 
 import static io.gravitee.gateway.api.ExecutionContext.ATTR_USER;
 
@@ -106,6 +107,13 @@ public class BasicAuthenticationPolicy {
                     // We succeed to authenticate the user
                     if (authentication != null) {
                         executionContext.setAttribute(ExecutionContext.ATTR_USER, authentication.getUsername());
+
+                        // Map user attributes into execution context attributes
+                        if (authentication.getAttributes() != null) {
+                            authentication.getAttributes().forEach((name, value) ->
+                                    executionContext.setAttribute(ExecutionContext.ATTR_USER + '.' + name, value));
+                        }
+
                         request.metrics().setUser(authentication.getUsername());
                         authenticated.set(true);
                         policyChain.doNext(request, response);
