@@ -1,4 +1,4 @@
-= Basic authentication Policy
+= Basic authentication policy
 
 ifdef::env-github[]
 image:https://ci.gravitee.io/buildStatus/icon?job=gravitee-io/gravitee-policy-basic-authentication/master["Build status", link="https://ci.gravitee.io/job/gravitee-io/job/gravitee-policy-basic-authentication/"]
@@ -19,5 +19,10 @@ endif::[]
 
 == Description
 
+You can use the `basic-authentication` policy to manage basic authentication headers sent in API calls. The policy compares the user and password sent in the basic authentication header to an APIM user to determine if the user credentials are valid.
+
+To use the policy in an API, you need to associate it with either an LDAP or inline resource, which specifies where the APIM users are stored, when designing your API.
+
+To use basic authentication in APIM, API consumers need to create a keyless plan and
 
 == Configuration
