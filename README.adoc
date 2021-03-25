@@ -28,6 +28,10 @@ To use the policy in an API, you need to:
 
 NOTE: LDAP and inline resources are not part of the default APIM configuration, so you must configure an LDAP or inline resource for APIM first, as described in the link:/apim/3.x/apim_devguide_plugins.html[Developer Guide^].
 
+=== Policy identifier
+
+You can enable or disable the policy with policy identifier `policy-basic-authentication`.
+
 == Configuration
 
 The policy configuration is as follows:
