@@ -31,10 +31,6 @@ import io.gravitee.resource.authprovider.api.AuthenticationProviderResource;
 
 import java.util.Base64;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
-
-import static io.gravitee.gateway.api.ExecutionContext.ATTR_USER;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -90,41 +86,47 @@ public class BasicAuthenticationPolicy {
             username = decodedUsernamePassword;
         }
 
-        AtomicBoolean authenticated = new AtomicBoolean(false);
+        final Iterator<String> providers = basicAuthenticationPolicyConfiguration.getAuthenticationProviders().iterator();
 
-        Iterator<String> authProviders = basicAuthenticationPolicyConfiguration.getAuthenticationProviders().iterator();
-        while( !authenticated.get() && authProviders.hasNext()) {
-            AuthenticationProviderResource authProvider = executionContext.getComponent(ResourceManager.class).getResource(
-                    authProviders.next(), AuthenticationProviderResource.class);
-
-            if (authProvider == null) {
-                continue;
+        doAuthenticate(username, password, providers, executionContext, result -> {
+            if (result == null) {
+                // No authentication provider matched, returning an authentication failure
+                sendAuthenticationFailure(response, policyChain);
+            } else {
+                request.metrics().setUser(result);
+                policyChain.doNext(request, response);
             }
+        });
+    }
 
-            authProvider.authenticate(username, password, new Handler<Authentication>() {
+    private void doAuthenticate(String username, String password, Iterator<String> providers,
+                                ExecutionContext context, Handler<String> authHandler) {
+        if (providers.hasNext()) {
+            AuthenticationProviderResource authProvider = context.getComponent(ResourceManager.class).getResource(
+                    providers.next(), AuthenticationProviderResource.class);
+
+            authProvider.authenticate(username, password, context, new Handler<Authentication>() {
                 @Override
                 public void handle(Authentication authentication) {
                     // We succeed to authenticate the user
                     if (authentication != null) {
-                        executionContext.setAttribute(ExecutionContext.ATTR_USER, authentication.getUsername());
+                        context.setAttribute(ExecutionContext.ATTR_USER, authentication.getUsername());
 
                         // Map user attributes into execution context attributes
                         if (authentication.getAttributes() != null) {
                             authentication.getAttributes().forEach((name, value) ->
-                                    executionContext.setAttribute(ExecutionContext.ATTR_USER + '.' + name, value));
+                                    context.setAttribute(ExecutionContext.ATTR_USER + '.' + name, value));
                         }
 
-                        request.metrics().setUser(authentication.getUsername());
-                        authenticated.set(true);
-                        policyChain.doNext(request, response);
+                        authHandler.handle(authentication.getUsername());
+                    } else {
+                        //Do next
+                        doAuthenticate(username, password, providers, context, authHandler);
                     }
                 }
             });
-        }
-
-        if (! authenticated.get()) {
-            // No authentication provider matched, returning an authentication failure
-            sendAuthenticationFailure(response, policyChain);
+        } else {
+            authHandler.handle(null);
         }
     }
 
