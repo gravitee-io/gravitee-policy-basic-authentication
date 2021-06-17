@@ -9,7 +9,13 @@
       "items" : {
         "type" : "string",
         "description": "Name of the authentication provider to use",
-        "title": "Identity Provider"
+        "title": "Identity Provider",
+        "x-schema-form": {
+          "event": {
+            "name": "fetch-resources",
+            "regexTypes": "^auth-provider"
+          }
+        }
       }
     },
     "realm" : {

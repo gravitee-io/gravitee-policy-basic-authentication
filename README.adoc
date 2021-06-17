@@ -23,10 +23,10 @@ You can use the `basic-authentication` policy to manage basic authentication hea
 
 To use the policy in an API, you need to:
 
-* configure an LDAP or inline resource for your API plan, which specifies where the APIM users are stored
+* configure an LDAP, inline or http resource for your API plan, which specifies where the APIM users are stored
 * configure a basic authentication policy for the API flows
 
-NOTE: LDAP and inline resources are not part of the default APIM configuration, so you must configure an LDAP or inline resource for APIM first, as described in the link:/apim/3.x/apim_devguide_plugins.html[Developer Guide^].
+NOTE: LDAP, inline and http resources are not part of the default APIM configuration, so you must configure an LDAP, inline or http resource for APIM first, as described in the link:/apim/3.x/apim_devguide_plugins.html[Developer Guide^].
 
 == Configuration
 
