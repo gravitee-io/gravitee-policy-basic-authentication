@@ -110,20 +110,11 @@ jobs:
             echo "$GIO_RELEASE_VERSION"  >  /tmp/gio.maven.project.release.version
 
       - setup_remote_docker
-      # ---
-      # Package Bundle must publish https://download.gravitee.io/#graviteeio-apim/plugins/resources/gravitee-resource-cache-redis/gravitee-resource-cache-redis-${GIO_RELEASE_VERSION}.zip
-      #
-      #
-      #   /tmp/package-bundle-resources/gravitee-resource-cache-redis-${GIO_RELEASE_VERSION}.zip  ===>> https://download.gravitee.io/#graviteeio-apim/plugins/resources/gravitee-resource-cache-redis/gravitee-resource-cache-redis-${GIO_RELEASE_VERSION}.zip
-      #
-      #
       - gravitee/d_publish_package_bundle_unit:
-          #dry_run: << pipeline.parameters.dry_run >>
-          dry_run: false
-          zip_file_path:  /tmp/package-bundle-resources/gravitee-resource-cache-redis-GIO_VERSION_PLACEHOLDER.zip
-          # zip_file_path: /tmp/ae-main-zip-bundle-repackage/gravitee-policy-http-signature-GIO_VERSION_PLACEHOLDER.zip
-          publish_folder_path: graviteeio-apim/plugins/resources/gravitee-resource-cache-redis
-          publish_zip_filename: gravitee-resource-cache-redis-GIO_VERSION_PLACEHOLDER.zip
+          dry_run: << pipeline.parameters.dry_run >>
+          zip_file_path:  /tmp/package-bundle-resources/gravitee-policy-basic-authentication-GIO_VERSION_PLACEHOLDER.zip
+          publish_folder_path: graviteeio-apim/plugins/policies/gravitee-policy-basic-authentication
+          publish_zip_filename: gravitee-policy-basic-authentication-GIO_VERSION_PLACEHOLDER.zip
           release_version_file_helper: /tmp/gio.maven.project.release.version
           s3_bucket_name: "gravitee-releases-downloads"
           placeholder: GIO_VERSION_PLACEHOLDER
