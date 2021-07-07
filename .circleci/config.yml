@@ -250,6 +250,9 @@ workflows:
           # container_gun_image_name: 'openjdk'
           # container_gun_image_tag: '11.0.3-jdk-stretch'
           container_size: 'large'
+      - package_bundle:
+          requires:
+            - maven_n_git_release
 
   standalone_release_dry_run:
     when:
@@ -349,6 +352,9 @@ workflows:
           # container_gun_image_name: 'openjdk'
           # container_gun_image_tag: '11.0.3-jdk-stretch'
           container_size: 'large'
+      - package_bundle:
+          requires:
+            - maven_n_git_release
 
   standalone_release_replay_dry_run:
     when:
@@ -371,6 +377,9 @@ workflows:
           # container_gun_image_name: 'openjdk'
           # container_gun_image_tag: '11.0.3-jdk-stretch'
           container_size: 'large'
+      - package_bundle:
+          requires:
+            - maven_n_git_release
 
   standalone_nexus_staging_replay:
     # ---
