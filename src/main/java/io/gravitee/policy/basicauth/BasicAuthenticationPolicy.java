@@ -15,12 +15,12 @@
  */
 package io.gravitee.policy.basicauth;
 
-import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.gateway.api.handler.Handler;
+import io.gravitee.gateway.api.http.HttpHeaderNames;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
@@ -52,7 +52,7 @@ public class BasicAuthenticationPolicy {
 
     @OnRequest
     public void onRequest(Request request, Response response, ExecutionContext executionContext, PolicyChain policyChain) {
-        String authorizationHeader = request.headers().getFirst(HttpHeaders.AUTHORIZATION);
+        String authorizationHeader = request.headers().getFirst(HttpHeaderNames.AUTHORIZATION);
 
         if (authorizationHeader == null || authorizationHeader.trim().isEmpty()) {
             sendAuthenticationFailure(response, policyChain);
@@ -141,7 +141,7 @@ public class BasicAuthenticationPolicy {
             realmName = DEFAULT_REALM_NAME;
         }
 
-        response.headers().set(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"" + realmName + "\"");
+        response.headers().set(HttpHeaderNames.WWW_AUTHENTICATE, "Basic realm=\"" + realmName + "\"");
         policyChain.failWith(PolicyResult.failure(HttpStatusCode.UNAUTHORIZED_401, message));
     }
 }
