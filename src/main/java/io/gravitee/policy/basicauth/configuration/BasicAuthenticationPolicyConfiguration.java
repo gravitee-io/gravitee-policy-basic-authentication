@@ -16,7 +16,6 @@
 package io.gravitee.policy.basicauth.configuration;
 
 import io.gravitee.policy.api.PolicyConfiguration;
-
 import java.util.List;
 
 /**

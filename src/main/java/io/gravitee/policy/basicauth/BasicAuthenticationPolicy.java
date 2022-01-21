@@ -28,7 +28,6 @@ import io.gravitee.policy.basicauth.configuration.BasicAuthenticationPolicyConfi
 import io.gravitee.resource.api.ResourceManager;
 import io.gravitee.resource.authprovider.api.Authentication;
 import io.gravitee.resource.authprovider.api.AuthenticationProviderResource;
-
 import java.util.Base64;
 import java.util.Iterator;
 
@@ -43,8 +42,8 @@ public class BasicAuthenticationPolicy {
      */
     private final BasicAuthenticationPolicyConfiguration basicAuthenticationPolicyConfiguration;
 
-    private final static String BASIC_AUTHENTICATION_VALUE = "BASIC ";
-    private final static String DEFAULT_REALM_NAME = "gravitee.io";
+    private static final String BASIC_AUTHENTICATION_VALUE = "BASIC ";
+    private static final String DEFAULT_REALM_NAME = "gravitee.io";
 
     public BasicAuthenticationPolicy(BasicAuthenticationPolicyConfiguration basicAuthenticationPolicyConfiguration) {
         this.basicAuthenticationPolicyConfiguration = basicAuthenticationPolicyConfiguration;
@@ -59,13 +58,15 @@ public class BasicAuthenticationPolicy {
             return;
         }
 
-        if (! authorizationHeader.toUpperCase().startsWith(BASIC_AUTHENTICATION_VALUE)) {
+        if (!authorizationHeader.toUpperCase().startsWith(BASIC_AUTHENTICATION_VALUE)) {
             sendAuthenticationFailure(response, policyChain);
             return;
         }
 
-        if (basicAuthenticationPolicyConfiguration.getAuthenticationProviders() == null ||
-                basicAuthenticationPolicyConfiguration.getAuthenticationProviders().isEmpty()) {
+        if (
+            basicAuthenticationPolicyConfiguration.getAuthenticationProviders() == null ||
+            basicAuthenticationPolicyConfiguration.getAuthenticationProviders().isEmpty()
+        ) {
             sendAuthenticationFailure(response, policyChain, "No authentication provider has been provided");
             return;
         }
@@ -88,43 +89,61 @@ public class BasicAuthenticationPolicy {
 
         final Iterator<String> providers = basicAuthenticationPolicyConfiguration.getAuthenticationProviders().iterator();
 
-        doAuthenticate(username, password, providers, executionContext, result -> {
-            if (result == null) {
-                // No authentication provider matched, returning an authentication failure
-                sendAuthenticationFailure(response, policyChain);
-            } else {
-                request.metrics().setUser(result);
-                policyChain.doNext(request, response);
+        doAuthenticate(
+            username,
+            password,
+            providers,
+            executionContext,
+            result -> {
+                if (result == null) {
+                    // No authentication provider matched, returning an authentication failure
+                    sendAuthenticationFailure(response, policyChain);
+                } else {
+                    request.metrics().setUser(result);
+                    policyChain.doNext(request, response);
+                }
             }
-        });
+        );
     }
 
-    private void doAuthenticate(String username, String password, Iterator<String> providers,
-                                ExecutionContext context, Handler<String> authHandler) {
+    private void doAuthenticate(
+        String username,
+        String password,
+        Iterator<String> providers,
+        ExecutionContext context,
+        Handler<String> authHandler
+    ) {
         if (providers.hasNext()) {
-            AuthenticationProviderResource authProvider = context.getComponent(ResourceManager.class).getResource(
-                    providers.next(), AuthenticationProviderResource.class);
+            AuthenticationProviderResource authProvider = context
+                .getComponent(ResourceManager.class)
+                .getResource(providers.next(), AuthenticationProviderResource.class);
 
-            authProvider.authenticate(username, password, context, new Handler<Authentication>() {
-                @Override
-                public void handle(Authentication authentication) {
-                    // We succeed to authenticate the user
-                    if (authentication != null) {
-                        context.setAttribute(ExecutionContext.ATTR_USER, authentication.getUsername());
+            authProvider.authenticate(
+                username,
+                password,
+                context,
+                new Handler<Authentication>() {
+                    @Override
+                    public void handle(Authentication authentication) {
+                        // We succeed to authenticate the user
+                        if (authentication != null) {
+                            context.setAttribute(ExecutionContext.ATTR_USER, authentication.getUsername());
 
-                        // Map user attributes into execution context attributes
-                        if (authentication.getAttributes() != null) {
-                            authentication.getAttributes().forEach((name, value) ->
-                                    context.setAttribute(ExecutionContext.ATTR_USER + '.' + name, value));
+                            // Map user attributes into execution context attributes
+                            if (authentication.getAttributes() != null) {
+                                authentication
+                                    .getAttributes()
+                                    .forEach((name, value) -> context.setAttribute(ExecutionContext.ATTR_USER + '.' + name, value));
+                            }
+
+                            authHandler.handle(authentication.getUsername());
+                        } else {
+                            //Do next
+                            doAuthenticate(username, password, providers, context, authHandler);
                         }
-
-                        authHandler.handle(authentication.getUsername());
-                    } else {
-                        //Do next
-                        doAuthenticate(username, password, providers, context, authHandler);
                     }
                 }
-            });
+            );
         } else {
             authHandler.handle(null);
         }
