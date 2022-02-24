@@ -36,7 +36,7 @@
     <properties>
         <gravitee-policy-api.version>1.6.0</gravitee-policy-api.version>
         <gravitee-resource-api.version>1.1.0</gravitee-resource-api.version>
-        <gravitee-gateway-api.version>1.31.0</gravitee-gateway-api.version>
+        <gravitee-gateway-api.version>1.32.0</gravitee-gateway-api.version>
         <gravitee-resource-auth-provider.version>1.1.0</gravitee-resource-auth-provider.version>
         <json-schema-generator-maven-plugin.version>1.3.0</json-schema-generator-maven-plugin.version>
         <json-schema-generator-maven-plugin.outputDirectory>${project.build.directory}/schemas</json-schema-generator-maven-plugin.outputDirectory>
