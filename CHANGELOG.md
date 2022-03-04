@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.3.0...1.4.0) (2022-03-04)
+
+
+### Features
+
+* update dependencies to be compatible with 3.15.x ([dd2722e](https://github.com/gravitee-io/gravitee-policy-basic-authentication/commit/dd2722ec994527362b1a876cfb98c2c7ccdb0293))
+
 # [1.3.0](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.2.0...1.3.0) (2022-01-21)
 
 
