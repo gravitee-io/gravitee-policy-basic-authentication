@@ -39,3 +39,4 @@ The policy configuration is as follows:
 
 |authenticationProviders||List of strings
 |realm||string
+|===
