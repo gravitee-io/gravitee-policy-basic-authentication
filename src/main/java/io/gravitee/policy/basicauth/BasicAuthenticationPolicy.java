@@ -16,6 +16,7 @@
 package io.gravitee.policy.basicauth;
 
 import io.gravitee.common.http.HttpStatusCode;
+import io.gravitee.common.util.Maps;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
@@ -44,6 +45,7 @@ public class BasicAuthenticationPolicy {
 
     private static final String BASIC_AUTHENTICATION_VALUE = "BASIC ";
     private static final String DEFAULT_REALM_NAME = "gravitee.io";
+    private static final String BASIC_AUTHENTICATION_UNAUTHORIZED = "BASIC_AUTHENTICATION_UNAUTHORIZED";
 
     public BasicAuthenticationPolicy(BasicAuthenticationPolicyConfiguration basicAuthenticationPolicyConfiguration) {
         this.basicAuthenticationPolicyConfiguration = basicAuthenticationPolicyConfiguration;
@@ -54,12 +56,12 @@ public class BasicAuthenticationPolicy {
         String authorizationHeader = request.headers().getFirst(HttpHeaderNames.AUTHORIZATION);
 
         if (authorizationHeader == null || authorizationHeader.trim().isEmpty()) {
-            sendAuthenticationFailure(response, policyChain);
+            sendAuthenticationFailure(request, response, policyChain);
             return;
         }
 
         if (!authorizationHeader.toUpperCase().startsWith(BASIC_AUTHENTICATION_VALUE)) {
-            sendAuthenticationFailure(response, policyChain);
+            sendAuthenticationFailure(request, response, policyChain);
             return;
         }
 
@@ -67,7 +69,7 @@ public class BasicAuthenticationPolicy {
             basicAuthenticationPolicyConfiguration.getAuthenticationProviders() == null ||
             basicAuthenticationPolicyConfiguration.getAuthenticationProviders().isEmpty()
         ) {
-            sendAuthenticationFailure(response, policyChain, "No authentication provider has been provided");
+            sendAuthenticationFailure(request, response, policyChain, "No authentication provider has been provided");
             return;
         }
 
@@ -97,7 +99,7 @@ public class BasicAuthenticationPolicy {
             result -> {
                 if (result == null) {
                     // No authentication provider matched, returning an authentication failure
-                    sendAuthenticationFailure(response, policyChain);
+                    sendAuthenticationFailure(request, response, policyChain);
                 } else {
                     request.metrics().setUser(result);
                     policyChain.doNext(request, response);
@@ -149,11 +151,11 @@ public class BasicAuthenticationPolicy {
         }
     }
 
-    private void sendAuthenticationFailure(Response response, PolicyChain policyChain) {
-        sendAuthenticationFailure(response, policyChain, "Unauthorized");
+    private void sendAuthenticationFailure(Request request, Response response, PolicyChain policyChain) {
+        sendAuthenticationFailure(request, response, policyChain, "Unauthorized");
     }
 
-    private void sendAuthenticationFailure(Response response, PolicyChain policyChain, String message) {
+    private void sendAuthenticationFailure(Request request, Response response, PolicyChain policyChain, String message) {
         String realmName = basicAuthenticationPolicyConfiguration.getRealm();
 
         if (realmName == null || realmName.trim().isEmpty()) {
@@ -161,6 +163,13 @@ public class BasicAuthenticationPolicy {
         }
 
         response.headers().set(HttpHeaderNames.WWW_AUTHENTICATE, "Basic realm=\"" + realmName + "\"");
-        policyChain.failWith(PolicyResult.failure(HttpStatusCode.UNAUTHORIZED_401, message));
+        policyChain.failWith(
+            PolicyResult.failure(
+                BASIC_AUTHENTICATION_UNAUTHORIZED,
+                HttpStatusCode.UNAUTHORIZED_401,
+                message,
+                Maps.<String, Object>builder().put("path", request.path()).put("method", request.method()).build()
+            )
+        );
     }
 }

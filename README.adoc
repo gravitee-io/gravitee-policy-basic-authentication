@@ -40,3 +40,20 @@ The policy configuration is as follows:
 |authenticationProviders||List of strings
 |realm||string
 |===
+
+=== Default response override
+
+You can use the response template feature to override the default responses provided by the policy. These templates must be defined at the API level (see the API Console *Response Templates*
+option in the API *Proxy* menu).
+
+=== Error keys
+
+The error keys sent by this policy are as follows:
+
+[cols="2*", options="header"]
+|===
+^|Key
+^|Parameters
+
+.^|BASIC_AUTHENTICATION_UNAUTHORIZED
+^.^|method, path
