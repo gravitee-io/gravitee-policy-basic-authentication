@@ -23,6 +23,12 @@
       "description": "The realm name showed to the client in case of error.",
       "type" : "string",
       "default": "gravitee.io"
+    },
+    "removeHeader": {
+      "title": "Remove Authorization header",
+      "description": "Remove the Authorization header after a processing",
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [

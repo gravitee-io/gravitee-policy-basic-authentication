@@ -28,6 +28,8 @@ public class BasicAuthenticationPolicyConfiguration implements PolicyConfigurati
 
     private String realm;
 
+    private boolean removeHeader;
+
     public List<String> getAuthenticationProviders() {
         return authenticationProviders;
     }
@@ -42,5 +44,13 @@ public class BasicAuthenticationPolicyConfiguration implements PolicyConfigurati
 
     public void setRealm(String realm) {
         this.realm = realm;
+    }
+
+    public boolean isRemoveHeader() {
+        return removeHeader;
+    }
+
+    public void setRemoveHeader(boolean removeHeader) {
+        this.removeHeader = removeHeader;
     }
 }

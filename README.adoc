@@ -39,4 +39,5 @@ The policy configuration is as follows:
 
 |authenticationProviders||List of strings
 |realm||string
+|removeHeader|remove the *Authorization* header at the end of successful authentication|boolean
 |===

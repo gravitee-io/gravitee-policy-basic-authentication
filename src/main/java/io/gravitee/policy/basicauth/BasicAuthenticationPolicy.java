@@ -99,6 +99,10 @@ public class BasicAuthenticationPolicy {
                     // No authentication provider matched, returning an authentication failure
                     sendAuthenticationFailure(response, policyChain);
                 } else {
+                    if (basicAuthenticationPolicyConfiguration.isRemoveHeader()) {
+                        request.headers().remove("Authorization");
+                    }
+
                     request.metrics().setUser(result);
                     policyChain.doNext(request, response);
                 }
