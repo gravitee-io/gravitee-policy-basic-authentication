@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.4.0...1.4.1) (2022-05-11)
+
+
+### Bug Fixes
+
+* assign policy to the 'security' category ([8f8007f](https://github.com/gravitee-io/gravitee-policy-basic-authentication/commit/8f8007f236936f4f391a20821a24bdccfdb9d54d))
+
 # [1.4.0](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.3.0...1.4.0) (2022-03-04)
 
 
