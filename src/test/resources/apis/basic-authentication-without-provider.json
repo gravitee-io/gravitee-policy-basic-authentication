@@ -1,0 +1,43 @@
+{
+  "id": "my-api-no-provider",
+  "name": "my-api",
+  "gravitee": "2.0.0",
+  "proxy": {
+    "context_path": "/test-no-provider",
+    "endpoints": [
+      {
+        "name": "default",
+        "target": "http://localhost:8080/endpoint",
+        "http": {
+          "connectTimeout": 3000,
+          "readTimeout": 60000
+        }
+      }
+    ]
+  },
+  "flows": [
+    {
+      "name": "flow-1",
+      "methods": [
+        "GET"
+      ],
+      "enabled": true,
+      "path-operator": {
+        "path": "/",
+        "operator": "STARTS_WITH"
+      },
+      "pre": [
+        {
+          "name": "Basic Authentication",
+          "description": "",
+          "enabled": true,
+          "policy": "policy-basic-authentication",
+          "configuration": {
+            "authenticationProviders": []
+          }
+        }
+      ],
+      "post": []
+    }
+  ]
+}

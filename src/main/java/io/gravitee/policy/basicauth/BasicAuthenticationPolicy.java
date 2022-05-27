@@ -43,7 +43,7 @@ public class BasicAuthenticationPolicy {
     private final BasicAuthenticationPolicyConfiguration basicAuthenticationPolicyConfiguration;
 
     private static final String BASIC_AUTHENTICATION_VALUE = "BASIC ";
-    private static final String DEFAULT_REALM_NAME = "gravitee.io";
+    static final String DEFAULT_REALM_NAME = "gravitee.io";
 
     public BasicAuthenticationPolicy(BasicAuthenticationPolicyConfiguration basicAuthenticationPolicyConfiguration) {
         this.basicAuthenticationPolicyConfiguration = basicAuthenticationPolicyConfiguration;
