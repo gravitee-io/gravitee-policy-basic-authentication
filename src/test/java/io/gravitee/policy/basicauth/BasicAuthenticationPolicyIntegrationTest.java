@@ -15,11 +15,7 @@
  */
 package io.gravitee.policy.basicauth;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.gravitee.apim.gateway.tests.sdk.AbstractPolicyTest;
@@ -27,14 +23,13 @@ import io.gravitee.apim.gateway.tests.sdk.annotations.DeployApi;
 import io.gravitee.apim.gateway.tests.sdk.annotations.GatewayTest;
 import io.gravitee.apim.gateway.tests.sdk.policy.PolicyBuilder;
 import io.gravitee.apim.gateway.tests.sdk.resource.ResourceBuilder;
+import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.gateway.api.http.HttpHeaderNames;
 import io.gravitee.plugin.policy.PolicyPlugin;
 import io.gravitee.plugin.resource.ResourcePlugin;
 import io.gravitee.policy.basicauth.configuration.BasicAuthenticationPolicyConfiguration;
-import io.reactivex.observers.TestObserver;
-import io.vertx.reactivex.core.buffer.Buffer;
-import io.vertx.reactivex.ext.web.client.HttpResponse;
-import io.vertx.reactivex.ext.web.client.WebClient;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.rxjava3.core.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
@@ -55,23 +50,23 @@ class BasicAuthenticationPolicyIntegrationTest
     @ParameterizedTest(name = "Header value: ''{0}''")
     @DisplayName("Should fail if no proper Authorization header for Basic authentication")
     @ValueSource(strings = { "", "NOT_BASIC" })
-    void shouldFailIfNoProperAuthorizationHeader(String authorizationHeader, WebClient client) {
+    void shouldFailIfNoProperAuthorizationHeader(String authorizationHeader, HttpClient httpClient) throws InterruptedException {
         wiremock.stubFor(get("/endpoint").willReturn(ok()));
 
-        final TestObserver<HttpResponse<Buffer>> obs = client
-            .get("/test")
-            .putHeader(HttpHeaderNames.AUTHORIZATION, authorizationHeader)
-            .rxSend()
-            .test();
-
-        awaitTerminalEvent(obs);
-        obs
-            .assertComplete()
-            .assertValue(response -> {
-                assertThat(response.statusCode()).isEqualTo(401);
+        httpClient
+            .rxRequest(HttpMethod.GET, "/test")
+            .flatMap(httpClientRequest -> httpClientRequest.putHeader(HttpHeaderNames.AUTHORIZATION, authorizationHeader).rxSend())
+            .flatMapPublisher(response -> {
+                assertThat(response.statusCode()).isEqualTo(HttpStatusCode.UNAUTHORIZED_401);
                 assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE))
                     .isEqualTo("Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\"");
-                assertThat(response.bodyAsString()).isEqualTo("Unauthorized");
+                return response.toFlowable();
+            })
+            .test()
+            .await()
+            .assertComplete()
+            .assertValue(body -> {
+                assertThat(body.toString()).isEqualTo("Unauthorized");
                 return true;
             })
             .assertNoErrors();
@@ -81,23 +76,23 @@ class BasicAuthenticationPolicyIntegrationTest
 
     @Test
     @DisplayName("Should fail if no resource provider configured")
-    void shouldFailIfNoProvider(WebClient client) {
+    void shouldFailIfNoProvider(HttpClient httpClient) throws InterruptedException {
         wiremock.stubFor(get("/endpoint").willReturn(ok()));
 
-        final TestObserver<HttpResponse<Buffer>> obs = client
-            .get("/test-no-provider")
-            .putHeader(HttpHeaderNames.AUTHORIZATION, "Basic user:pswrd")
-            .rxSend()
-            .test();
-
-        awaitTerminalEvent(obs);
-        obs
-            .assertComplete()
-            .assertValue(response -> {
-                assertThat(response.statusCode()).isEqualTo(401);
+        httpClient
+            .rxRequest(HttpMethod.GET, "/test-no-provider")
+            .flatMap(httpClientRequest -> httpClientRequest.putHeader(HttpHeaderNames.AUTHORIZATION, "Basic user:pswrd").rxSend())
+            .flatMapPublisher(response -> {
+                assertThat(response.statusCode()).isEqualTo(HttpStatusCode.UNAUTHORIZED_401);
                 assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE))
                     .isEqualTo("Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\"");
-                assertThat(response.bodyAsString()).isEqualTo("No authentication provider has been provided");
+                return response.toFlowable();
+            })
+            .test()
+            .await()
+            .assertComplete()
+            .assertValue(body -> {
+                assertThat(body.toString()).isEqualTo("No authentication provider has been provided");
                 return true;
             })
             .assertNoErrors();
@@ -107,21 +102,21 @@ class BasicAuthenticationPolicyIntegrationTest
 
     @Test
     @DisplayName("Should fail if token is not base64")
-    void shouldFailIfTokenNotBase64(WebClient client) {
+    void shouldFailIfTokenNotBase64(HttpClient httpClient) throws InterruptedException {
         wiremock.stubFor(get("/endpoint").willReturn(ok()));
 
-        final TestObserver<HttpResponse<Buffer>> obs = client
-            .get("/test")
-            .putHeader(HttpHeaderNames.AUTHORIZATION, "Basic user:pswrd")
-            .rxSend()
-            .test();
-
-        awaitTerminalEvent(obs);
-        obs
+        httpClient
+            .rxRequest(HttpMethod.GET, "/test")
+            .flatMap(httpClientRequest -> httpClientRequest.putHeader(HttpHeaderNames.AUTHORIZATION, "Basic user:pswrd").rxSend())
+            .flatMapPublisher(response -> {
+                assertThat(response.statusCode()).isEqualTo(HttpStatusCode.UNAUTHORIZED_401);
+                return response.toFlowable();
+            })
+            .test()
+            .await()
             .assertComplete()
-            .assertValue(response -> {
-                assertThat(response.statusCode()).isEqualTo(500);
-                assertThat(response.bodyAsString()).contains("Illegal base64 character");
+            .assertValue(body -> {
+                assertThat(body.toString()).isEqualTo("Unauthorized");
                 return true;
             })
             .assertNoErrors();
@@ -131,25 +126,25 @@ class BasicAuthenticationPolicyIntegrationTest
 
     @Test
     @DisplayName("Should fail for unauthorized user")
-    void shouldFailIfProviderDoNotMatch(WebClient client) {
+    void shouldFailIfProviderDoNotMatch(HttpClient httpClient) throws InterruptedException {
         wiremock.stubFor(get("/endpoint").willReturn(ok()));
 
         String token = Base64.getEncoder().encodeToString("invalid-user:password".getBytes(StandardCharsets.UTF_8));
 
-        final TestObserver<HttpResponse<Buffer>> obs = client
-            .get("/test")
-            .putHeader(HttpHeaderNames.AUTHORIZATION, "Basic " + token)
-            .rxSend()
-            .test();
-
-        awaitTerminalEvent(obs);
-        obs
-            .assertComplete()
-            .assertValue(response -> {
-                assertThat(response.statusCode()).isEqualTo(401);
+        httpClient
+            .rxRequest(HttpMethod.GET, "/test")
+            .flatMap(httpClientRequest -> httpClientRequest.putHeader(HttpHeaderNames.AUTHORIZATION, "Basic " + token).rxSend())
+            .flatMapPublisher(response -> {
+                assertThat(response.statusCode()).isEqualTo(HttpStatusCode.UNAUTHORIZED_401);
                 assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE))
                     .isEqualTo("Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\"");
-                assertThat(response.bodyAsString()).isEqualTo("Unauthorized");
+                return response.toFlowable();
+            })
+            .test()
+            .await()
+            .assertComplete()
+            .assertValue(body -> {
+                assertThat(body.toString()).isEqualTo("Unauthorized");
                 return true;
             })
             .assertNoErrors();
@@ -160,28 +155,28 @@ class BasicAuthenticationPolicyIntegrationTest
     @ParameterizedTest(name = "Authenticate with: ''{0}''")
     @DisplayName("Should authenticate properly")
     @ValueSource(strings = { "dummy-user", "dummy-user:password", "user:pwd" })
-    void shouldAuthenticateProperly(String login, WebClient client) {
+    void shouldAuthenticateProperly(String login, HttpClient httpClient) throws InterruptedException {
         wiremock.stubFor(get("/endpoint").willReturn(ok("response from backend")));
 
         String token = Base64.getEncoder().encodeToString(login.getBytes(StandardCharsets.UTF_8));
 
-        final TestObserver<HttpResponse<Buffer>> obs = client
-            .get("/test")
-            .putHeader(HttpHeaderNames.AUTHORIZATION, "Basic " + token)
-            .rxSend()
-            .test();
-
-        awaitTerminalEvent(obs);
-        obs
-            .assertComplete()
-            .assertValue(response -> {
-                assertThat(response.statusCode()).isEqualTo(200);
-                assertThat(response.bodyAsString()).isEqualTo("response from backend");
+        httpClient
+            .rxRequest(HttpMethod.GET, "/test")
+            .flatMap(httpClientRequest -> httpClientRequest.putHeader(HttpHeaderNames.AUTHORIZATION, "Basic " + token).rxSend())
+            .flatMapPublisher(response -> {
+                assertThat(response.statusCode()).isEqualTo(HttpStatusCode.OK_200);
 
                 if (login.contains(":")) {
                     assertThat(response.headers().get("password-attribute")).isEqualTo(login.split(":")[1]);
                 }
 
+                return response.toFlowable();
+            })
+            .test()
+            .await()
+            .assertComplete()
+            .assertValue(body -> {
+                assertThat(body.toString()).isEqualTo("response from backend");
                 return true;
             })
             .assertNoErrors();

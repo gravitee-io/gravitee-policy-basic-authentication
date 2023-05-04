@@ -57,3 +57,14 @@ The policy configuration is as follows:
 |authenticationProviders||List of strings
 |realm||string
 |===
+
+==== Gateway configuration (gravitee.yml)
+[source, yaml]
+----
+  policy:
+    basic-auth:
+      attributes:
+        user: gateway.username
+----
+
+The `policy.basic-auth.attributes.user` allow to configure the context attribute into which the user from the basic authentication will be injected.
