@@ -1,8 +1,9 @@
 {
-  "type" : "object",
-  "id" : "urn:jsonschema:io:gravitee:policy:basicauth:configuration:BasicAuthenticationPolicyConfiguration",
-  "properties" : {
-    "authenticationProviders" : {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "authenticationProviders": {
       "type" : "array",
       "title": "Authentication providers",
       "description": "Authentication provider resources used to authenticate users. By providing multiple providers, the gateway will try each of them until the user is authenticated.",
@@ -15,10 +16,16 @@
             "name": "fetch-resources",
             "regexTypes": "^auth-provider"
           }
+        },
+        "gioConfig": {
+          "uiType": "resource-type",
+          "uiTypeProps": {
+            "resourceType": "auth-provider"
+          }
         }
       }
     },
-    "realm" : {
+    "realm": {
       "title": "Realm name",
       "description": "The realm name showed to the client in case of error.",
       "type" : "string",
