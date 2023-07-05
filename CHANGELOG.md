@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.4.1...1.5.0) (2023-07-05)
+
+
+### Features
+
+* define proxy execution phase ([2d0a41e](https://github.com/gravitee-io/gravitee-policy-basic-authentication/commit/2d0a41e3108fa48434c21a8a6009c9ed193c05a0))
+
 ## [1.4.1](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.4.0...1.4.1) (2022-05-11)
 
 
