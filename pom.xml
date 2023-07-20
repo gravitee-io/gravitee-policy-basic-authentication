@@ -25,7 +25,7 @@
     <version>1.5.0</version>
 
     <name>Gravitee.io APIM - Policy - Basic Authentication</name>
-    <description>Description of the Basic Authentication Gravitee Policy</description>
+    <description>Manage Basic Authentication headers sent in API calls</description>
 
     <parent>
         <groupId>io.gravitee</groupId>
