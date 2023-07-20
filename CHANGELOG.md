@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.5.0...1.5.1) (2023-07-20)
+
+
+### Bug Fixes
+
+* update policy description ([b1f56f6](https://github.com/gravitee-io/gravitee-policy-basic-authentication/commit/b1f56f6e4c152ff674aa3f93c558e2c56cdb2f1a))
+
 # [1.5.0](https://github.com/gravitee-io/gravitee-policy-basic-authentication/compare/1.4.1...1.5.0) (2023-07-05)
 
 
