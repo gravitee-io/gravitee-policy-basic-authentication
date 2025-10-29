@@ -30,12 +30,16 @@ import io.gravitee.resource.authprovider.api.Authentication;
 import io.gravitee.resource.authprovider.api.AuthenticationProviderResource;
 import java.util.Base64;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class BasicAuthenticationPolicy {
+
+    private static final Logger logger = LoggerFactory.getLogger(BasicAuthenticationPolicy.class);
 
     /**
      * Basic authentication policy configuration
@@ -121,6 +125,7 @@ public class BasicAuthenticationPolicy {
 
             if (authProvider == null) {
                 // Authentication provider not found, try next provider
+                logger.warn("Authentication provider [{}] not found, trying next provider", providerName);
                 doAuthenticate(username, password, providers, context, authHandler);
                 return;
             }
@@ -155,6 +160,7 @@ public class BasicAuthenticationPolicy {
             } catch (Exception e) {
                 // If authentication fails with an exception, try the next provider
                 // This ensures we fail securely rather than allowing the request through
+                logger.error("Authentication provider [{}] threw an exception, trying next provider", providerName, e);
                 doAuthenticate(username, password, providers, context, authHandler);
             }
         } else {
