@@ -114,36 +114,49 @@ public class BasicAuthenticationPolicy {
         Handler<String> authHandler
     ) {
         if (providers.hasNext()) {
+            String providerName = providers.next();
             AuthenticationProviderResource authProvider = context
                 .getComponent(ResourceManager.class)
-                .getResource(providers.next(), AuthenticationProviderResource.class);
+                .getResource(providerName, AuthenticationProviderResource.class);
 
-            authProvider.authenticate(
-                username,
-                password,
-                context,
-                new Handler<Authentication>() {
-                    @Override
-                    public void handle(Authentication authentication) {
-                        // We succeed to authenticate the user
-                        if (authentication != null) {
-                            context.setAttribute(ExecutionContext.ATTR_USER, authentication.getUsername());
+            if (authProvider == null) {
+                // Authentication provider not found, try next provider
+                doAuthenticate(username, password, providers, context, authHandler);
+                return;
+            }
 
-                            // Map user attributes into execution context attributes
-                            if (authentication.getAttributes() != null) {
-                                authentication
-                                    .getAttributes()
-                                    .forEach((name, value) -> context.setAttribute(ExecutionContext.ATTR_USER + '.' + name, value));
+            try {
+                authProvider.authenticate(
+                    username,
+                    password,
+                    context,
+                    new Handler<Authentication>() {
+                        @Override
+                        public void handle(Authentication authentication) {
+                            // We succeed to authenticate the user
+                            if (authentication != null) {
+                                context.setAttribute(ExecutionContext.ATTR_USER, authentication.getUsername());
+
+                                // Map user attributes into execution context attributes
+                                if (authentication.getAttributes() != null) {
+                                    authentication
+                                        .getAttributes()
+                                        .forEach((name, value) -> context.setAttribute(ExecutionContext.ATTR_USER + '.' + name, value));
+                                }
+
+                                authHandler.handle(authentication.getUsername());
+                            } else {
+                                //Do next
+                                doAuthenticate(username, password, providers, context, authHandler);
                             }
-
-                            authHandler.handle(authentication.getUsername());
-                        } else {
-                            //Do next
-                            doAuthenticate(username, password, providers, context, authHandler);
                         }
                     }
-                }
-            );
+                );
+            } catch (Exception e) {
+                // If authentication fails with an exception, try the next provider
+                // This ensures we fail securely rather than allowing the request through
+                doAuthenticate(username, password, providers, context, authHandler);
+            }
         } else {
             authHandler.handle(null);
         }

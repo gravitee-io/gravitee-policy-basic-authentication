@@ -48,7 +48,13 @@ import org.junit.jupiter.params.provider.ValueSource;
  * @author GraviteeSource Team
  */
 @GatewayTest
-@DeployApi({ "/apis/basic-authentication.json", "/apis/basic-authentication-without-provider.json" })
+@DeployApi(
+    {
+        "/apis/basic-authentication.json",
+        "/apis/basic-authentication-without-provider.json",
+        "/apis/basic-authentication-missing-provider.json",
+    }
+)
 class BasicAuthenticationPolicyIntegrationTest
     extends AbstractPolicyTest<BasicAuthenticationPolicy, BasicAuthenticationPolicyConfiguration> {
 
@@ -187,6 +193,34 @@ class BasicAuthenticationPolicyIntegrationTest
             .assertNoErrors();
 
         wiremock.verify(exactly(1), getRequestedFor(urlPathEqualTo("/endpoint")));
+    }
+
+    @Test
+    @DisplayName("Should fail when authentication provider is missing/not found")
+    void shouldFailIfProviderMissing(WebClient client) {
+        wiremock.stubFor(get("/endpoint").willReturn(ok()));
+
+        String token = Base64.getEncoder().encodeToString("dummy-user:password".getBytes(StandardCharsets.UTF_8));
+
+        final TestObserver<HttpResponse<Buffer>> obs = client
+            .get("/test-missing-provider")
+            .putHeader(HttpHeaderNames.AUTHORIZATION, "Basic " + token)
+            .rxSend()
+            .test();
+
+        awaitTerminalEvent(obs);
+        obs
+            .assertComplete()
+            .assertValue(response -> {
+                assertThat(response.statusCode()).isEqualTo(401);
+                assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE))
+                    .isEqualTo("Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\"");
+                assertThat(response.bodyAsString()).isEqualTo("Unauthorized");
+                return true;
+            })
+            .assertNoErrors();
+
+        wiremock.verify(exactly(0), getRequestedFor(urlPathEqualTo("/endpoint")));
     }
 
     @Override
