@@ -35,6 +35,7 @@
 
     <properties>
         <gravitee-apim-gateway-tests-sdk.version>3.18.0</gravitee-apim-gateway-tests-sdk.version>
+        <mockito.version>5.24.0</mockito.version>
         <gravitee-bom.version>2.9</gravitee-bom.version>
         <gravitee-common.version>1.28.0</gravitee-common.version>
         <gravitee-policy-api.version>1.11.0</gravitee-policy-api.version>
@@ -57,6 +58,12 @@
                 <version>${gravitee-bom.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
