@@ -89,21 +89,15 @@ public class BasicAuthenticationPolicy {
 
         final Iterator<String> providers = basicAuthenticationPolicyConfiguration.getAuthenticationProviders().iterator();
 
-        doAuthenticate(
-            username,
-            password,
-            providers,
-            executionContext,
-            result -> {
-                if (result == null) {
-                    // No authentication provider matched, returning an authentication failure
-                    sendAuthenticationFailure(response, policyChain);
-                } else {
-                    request.metrics().setUser(result);
-                    policyChain.doNext(request, response);
-                }
+        doAuthenticate(username, password, providers, executionContext, result -> {
+            if (result == null) {
+                // No authentication provider matched, returning an authentication failure
+                sendAuthenticationFailure(response, policyChain);
+            } else {
+                request.metrics().setUser(result);
+                policyChain.doNext(request, response);
             }
-        );
+        });
     }
 
     private void doAuthenticate(
