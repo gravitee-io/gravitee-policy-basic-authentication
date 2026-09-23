@@ -69,8 +69,9 @@ class BasicAuthenticationPolicyIntegrationTest
             .assertComplete()
             .assertValue(response -> {
                 assertThat(response.statusCode()).isEqualTo(401);
-                assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE))
-                    .isEqualTo("Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\"");
+                assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE)).isEqualTo(
+                    "Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\""
+                );
                 assertThat(response.bodyAsString()).isEqualTo("Unauthorized");
                 return true;
             })
@@ -95,8 +96,9 @@ class BasicAuthenticationPolicyIntegrationTest
             .assertComplete()
             .assertValue(response -> {
                 assertThat(response.statusCode()).isEqualTo(401);
-                assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE))
-                    .isEqualTo("Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\"");
+                assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE)).isEqualTo(
+                    "Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\""
+                );
                 assertThat(response.bodyAsString()).isEqualTo("No authentication provider has been provided");
                 return true;
             })
@@ -147,8 +149,9 @@ class BasicAuthenticationPolicyIntegrationTest
             .assertComplete()
             .assertValue(response -> {
                 assertThat(response.statusCode()).isEqualTo(401);
-                assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE))
-                    .isEqualTo("Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\"");
+                assertThat(response.headers().get(HttpHeaderNames.WWW_AUTHENTICATE)).isEqualTo(
+                    "Basic realm=\"" + BasicAuthenticationPolicy.DEFAULT_REALM_NAME + "\""
+                );
                 assertThat(response.bodyAsString()).isEqualTo("Unauthorized");
                 return true;
             })
