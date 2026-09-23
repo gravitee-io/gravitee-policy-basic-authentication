@@ -1,39 +1,36 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "additionalProperties": false,
-  "properties": {
-    "authenticationProviders": {
-      "type" : "array",
-      "title": "Authentication providers",
-      "description": "Authentication provider resources used to authenticate users. By providing multiple providers, the gateway will try each of them until the user is authenticated.",
-      "items" : {
-        "type" : "string",
-        "description": "Name of the authentication provider to use",
-        "title": "Identity Provider",
-        "x-schema-form": {
-          "event": {
-            "name": "fetch-resources",
-            "regexTypes": "^auth-provider"
-          }
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "authenticationProviders": {
+            "type": "array",
+            "title": "Authentication providers",
+            "description": "Authentication provider resources used to authenticate users. By providing multiple providers, the gateway will try each of them until the user is authenticated.",
+            "items": {
+                "type": "string",
+                "description": "Name of the authentication provider to use",
+                "title": "Identity Provider",
+                "x-schema-form": {
+                    "event": {
+                        "name": "fetch-resources",
+                        "regexTypes": "^auth-provider"
+                    }
+                },
+                "gioConfig": {
+                    "uiType": "resource-type",
+                    "uiTypeProps": {
+                        "resourceType": "auth-provider"
+                    }
+                }
+            }
         },
-        "gioConfig": {
-          "uiType": "resource-type",
-          "uiTypeProps": {
-            "resourceType": "auth-provider"
-          }
+        "realm": {
+            "title": "Realm name",
+            "description": "The realm name showed to the client in case of error.",
+            "type": "string",
+            "default": "gravitee.io"
         }
-      }
     },
-    "realm": {
-      "title": "Realm name",
-      "description": "The realm name showed to the client in case of error.",
-      "type" : "string",
-      "default": "gravitee.io"
-    }
-  },
-  "required": [
-    "authenticationProviders",
-    "realm"
-  ]
+    "required": ["authenticationProviders", "realm"]
 }
