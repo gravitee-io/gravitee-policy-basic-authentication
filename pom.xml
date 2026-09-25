@@ -37,7 +37,7 @@
         <gravitee-apim-gateway-tests-sdk.version>3.18.0</gravitee-apim-gateway-tests-sdk.version>
         <mockito.version>5.24.0</mockito.version>
         <gravitee-bom.version>2.9</gravitee-bom.version>
-        <gravitee-common.version>1.28.0</gravitee-common.version>
+        <gravitee-common.version>5.2.0</gravitee-common.version>
         <gravitee-policy-api.version>1.11.0</gravitee-policy-api.version>
         <gravitee-gateway-api.version>1.34.2</gravitee-gateway-api.version>
         <gravitee-resource-api.version>1.1.0</gravitee-resource-api.version>
